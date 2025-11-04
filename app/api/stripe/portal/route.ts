@@ -3,11 +3,18 @@ export const runtime = "nodejs"
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { stripe } from "@/lib/stripe"
+import { stripe, isStripeEnabled } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
   try {
+    if (!isStripeEnabled || !stripe) {
+      return NextResponse.json(
+        { error: "Stripe is not configured" },
+        { status: 503 }
+      )
+    }
+
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.id) {

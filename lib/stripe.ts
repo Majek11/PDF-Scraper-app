@@ -3,10 +3,11 @@ import Stripe from "stripe"
 export const isStripeEnabled = Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== "sk_test_your_key_here")
 
 // Initialize Stripe client only when a key is provided to avoid crashing optional flows
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  // If apiVersion is omitted, the SDK uses your Stripe account's default version
-  typescript: true,
-})
+export const stripe = isStripeEnabled 
+  ? new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      typescript: true,
+    })
+  : null
 
 export const PLANS = {
   BASIC: {

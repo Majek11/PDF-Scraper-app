@@ -3,10 +3,17 @@ export const runtime = "nodejs"
 import { NextResponse } from "next/server"
 import { headers } from "next/headers"
 import Stripe from "stripe"
-import { stripe, PLANS } from "@/lib/stripe"
+import { stripe, PLANS, isStripeEnabled } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 
 export async function POST(req: Request) {
+  if (!isStripeEnabled || !stripe) {
+    return NextResponse.json(
+      { error: "Stripe is not configured" },
+      { status: 503 }
+    )
+  }
+
   const body = await req.text()
   const signature = headers().get("stripe-signature")!
 
