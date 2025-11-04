@@ -44,12 +44,12 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link href="/login">
-                  <Button size="lg" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full sm:w-auto bg-black text-white hover:bg-black/90">
                     Get Started
                   </Button>
                 </Link>
                 <Link href="#features">
-                  <Button size="lg" variant="outline" className="w-full sm:w-auto bg-transparent">
+                  <Button size="lg" className="w-full sm:w-auto bg-black text-white hover:bg-black/90">
                     Learn More
                   </Button>
                 </Link>
@@ -124,7 +124,7 @@ export default function HomePage() {
                     <li>✓ Email support</li>
                   </ul>
                   <Link href="/settings">
-                    <Button className="w-full">Choose Basic</Button>
+                    <Button className="w-full bg-black text-white hover:bg-black/90">Choose Basic</Button>
                   </Link>
                 </div>
 
@@ -149,7 +149,7 @@ export default function HomePage() {
                     <li>✓ Billing portal access</li>
                   </ul>
                   <Link href="/settings">
-                    <Button className="w-full" variant="default">Choose Pro</Button>
+                    <Button className="w-full bg-black text-white hover:bg-black/90">Choose Pro</Button>
                   </Link>
                 </div>
               </div>

@@ -124,7 +124,7 @@ export default function LoginPage() {
               {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full bg-black text-white hover:bg-black/90" disabled={isLoading}>
               {mode === "signin" ? "Sign in" : "Create account"}
             </Button>
           </form>

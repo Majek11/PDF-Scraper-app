@@ -174,7 +174,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="mt-2 text-muted-foreground">View and manage your uploaded PDFs</p>
           </div>
-          <Button onClick={() => (window.location.href = "/upload")}>Upload PDF</Button>
+          <Button onClick={() => (window.location.href = "/upload")} className="bg-black text-white hover:bg-black/90">Upload PDF</Button>
         </div>
 
         {resumes.length === 0 ? (
@@ -183,7 +183,7 @@ export default function DashboardPage() {
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <p className="mb-2 font-medium">No resumes yet</p>
               <p className="mb-4 text-sm text-muted-foreground">Upload your first PDF to get started</p>
-              <Button onClick={() => (window.location.href = "/upload")}>Upload PDF</Button>
+              <Button onClick={() => (window.location.href = "/upload")} className="bg-black text-white hover:bg-black/90">Upload PDF</Button>
             </CardContent>
           </Card>
         ) : (

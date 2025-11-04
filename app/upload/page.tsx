@@ -199,7 +199,7 @@ export default function UploadPage() {
                 )}
 
                 {uploadStatus === "idle" && (
-                  <Button onClick={handleUpload} className="w-full" disabled={isUploading}>
+                  <Button onClick={handleUpload} className="w-full bg-black text-white hover:bg-black/90" disabled={isUploading}>
                     Upload and Extract Data
                   </Button>
                 )}

@@ -206,7 +206,7 @@ function SettingsContent() {
               <li>✓ All features included</li>
             </ul>
             <Button
-              className="w-full"
+              className="w-full bg-black text-white hover:bg-black/90"
               onClick={() => handleSubscribe("BASIC")}
               disabled={subscribing !== null || userData?.planType === "BASIC"}
             >
@@ -245,7 +245,7 @@ function SettingsContent() {
               <li>✓ Best value</li>
             </ul>
             <Button
-              className="w-full"
+              className="w-full bg-black text-white hover:bg-black/90"
               onClick={() => handleSubscribe("PRO")}
               disabled={subscribing !== null || userData?.planType === "PRO"}
             >

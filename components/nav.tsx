@@ -123,7 +123,7 @@ export function Nav() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarFallback>{session.user.email?.[0].toUpperCase()}</AvatarFallback>
+                      <AvatarFallback className="bg-gray-200 text-black rounded-lg">{session.user.email?.[0].toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
@@ -200,7 +200,7 @@ export function Nav() {
                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
               <Link href="/login">
-                <Button size="sm">Get Started</Button>
+                <Button size="sm" className="bg-black text-white hover:bg-black/90">Get Started</Button>
               </Link>
             </>
           )}
