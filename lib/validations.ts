@@ -25,80 +25,80 @@ export const resumeDataSchema = z.object({
   profile: z.object({
     name: z.string(),
     surname: z.string(),
-    email: z.string().email().optional(),
-    headline: z.string().optional(),
-    professionalSummary: z.string().optional(),
-    linkedIn: z.string().optional(),
-    website: z.string().optional(),
-    country: z.string().optional(),
-    city: z.string().optional(),
-    relocation: z.boolean().optional(),
-    remote: z.boolean().optional(),
+    email: z.string().email().nullable().optional(),
+    headline: z.string().nullable().optional(),
+    professionalSummary: z.string().nullable().optional(),
+    linkedIn: z.string().nullable().optional(),
+    website: z.string().nullable().optional(),
+    country: z.string().nullable().optional(),
+    city: z.string().nullable().optional(),
+    relocation: z.boolean().nullable().optional(),
+    remote: z.boolean().nullable().optional(),
   }),
   workExperiences: z.array(
     z.object({
       jobTitle: z.string(),
-      employmentType: EmploymentType.optional(),
-      locationType: LocationType.optional(),
+      employmentType: EmploymentType.nullable().optional(),
+      locationType: LocationType.nullable().optional(),
       company: z.string(),
-      startMonth: z.number().min(1).max(12).optional(),
-      startYear: z.number().optional(),
+      startMonth: z.number().min(1).max(12).nullable().optional(),
+      startYear: z.number().nullable().optional(),
       endMonth: z.number().min(1).max(12).nullable().optional(),
       endYear: z.number().nullable().optional(),
-      current: z.boolean().optional(),
-      description: z.string().optional(),
+      current: z.boolean().nullable().optional(),
+      description: z.string().nullable().optional(),
     })
   ).optional().default([]),
   educations: z.array(
     z.object({
       school: z.string(),
-      degree: DegreeType.optional(),
-      major: z.string().optional(),
-      startYear: z.number().optional(),
-      endYear: z.number().optional(),
-      current: z.boolean().optional(),
-      description: z.string().optional(),
+      degree: DegreeType.nullable().optional(),
+      major: z.string().nullable().optional(),
+      startYear: z.number().nullable().optional(),
+      endYear: z.number().nullable().optional(),
+      current: z.boolean().nullable().optional(),
+      description: z.string().nullable().optional(),
     })
   ).optional().default([]),
   skills: z.array(z.string()).optional().default([]),
   licenses: z.array(
     z.object({
       name: z.string(),
-      issuer: z.string().optional(),
-      issueYear: z.number().optional(),
-      description: z.string().optional(),
+      issuer: z.string().nullable().optional(),
+      issueYear: z.number().nullable().optional(),
+      description: z.string().nullable().optional(),
     })
   ).optional().default([]),
   languages: z.array(
     z.object({
       language: z.string(),
-      level: LanguageLevel.optional(),
+      level: LanguageLevel.nullable().optional(),
     })
   ).optional().default([]),
   achievements: z.array(
     z.object({
       title: z.string(),
-      organization: z.string().optional(),
-      achieveDate: z.string().optional(),
-      description: z.string().optional(),
+      organization: z.string().nullable().optional(),
+      achieveDate: z.string().nullable().optional(),
+      description: z.string().nullable().optional(),
     })
   ).optional().default([]),
   publications: z.array(
     z.object({
       title: z.string(),
-      publisher: z.string().optional(),
-      publicationDate: z.string().optional(),
-      publicationUrl: z.string().optional(),
-      description: z.string().optional(),
+      publisher: z.string().nullable().optional(),
+      publicationDate: z.string().nullable().optional(),
+      publicationUrl: z.string().nullable().optional(),
+      description: z.string().nullable().optional(),
     })
   ).optional().default([]),
   honors: z.array(
     z.object({
       title: z.string(),
-      issuer: z.string().optional(),
-      issueMonth: z.number().min(1).max(12).optional(),
-      issueYear: z.number().optional(),
-      description: z.string().optional(),
+      issuer: z.string().nullable().optional(),
+      issueMonth: z.number().min(1).max(12).nullable().optional(),
+      issueYear: z.number().nullable().optional(),
+      description: z.string().nullable().optional(),
     })
   ).optional().default([]),
 })

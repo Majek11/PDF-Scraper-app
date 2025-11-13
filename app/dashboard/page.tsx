@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { Nav } from "@/components/nav"
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,7 @@ interface Resume {
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [selectedResume, setSelectedResume] = useState<Resume | null>(null)
   const [deleteResumeId, setDeleteResumeId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -74,6 +76,91 @@ export default function DashboardPage() {
       title: "Exported",
       description: "JSON data downloaded successfully",
     })
+  }
+
+  const handleExportPDF = async (resume: Resume) => {
+    try {
+      // Import jsPDF dynamically (client-side only)
+      const { default: jsPDF } = await import("jspdf")
+      const doc = new jsPDF()
+      
+      const data = resume.extractedData
+      let y = 20
+      const lineHeight = 7
+      const pageHeight = doc.internal.pageSize.height
+      
+      // Helper to add text with page break
+      const addText = (text: string, fontSize = 10, isBold = false) => {
+        if (y > pageHeight - 20) {
+          doc.addPage()
+          y = 20
+        }
+        doc.setFontSize(fontSize)
+        if (isBold) doc.setFont("helvetica", "bold")
+        else doc.setFont("helvetica", "normal")
+        
+        const lines = doc.splitTextToSize(text, 170)
+        doc.text(lines, 20, y)
+        y += lineHeight * lines.length
+      }
+      
+      // Title
+      addText(`Resume: ${data.profile?.name || ""} ${data.profile?.surname || ""}`, 16, true)
+      y += 5
+      
+      // Profile
+      if (data.profile) {
+        addText("PROFILE", 14, true)
+        if (data.profile.headline) addText(`Headline: ${data.profile.headline}`)
+        if (data.profile.email) addText(`Email: ${data.profile.email}`)
+        if (data.profile.linkedIn) addText(`LinkedIn: ${data.profile.linkedIn}`)
+        if (data.profile.professionalSummary) addText(`Summary: ${data.profile.professionalSummary}`)
+        y += 5
+      }
+      
+      // Work Experience
+      if (data.workExperiences?.length) {
+        addText("WORK EXPERIENCE", 14, true)
+        data.workExperiences.forEach((exp) => {
+          addText(`${exp.jobTitle} at ${exp.company}`, 11, true)
+          if (exp.description) addText(exp.description)
+          y += 3
+        })
+        y += 5
+      }
+      
+      // Education
+      if (data.educations?.length) {
+        addText("EDUCATION", 14, true)
+        data.educations.forEach((edu) => {
+          addText(`${edu.degree || ""} - ${edu.school}`, 11, true)
+          if (edu.major) addText(`Major: ${edu.major}`)
+          y += 3
+        })
+        y += 5
+      }
+      
+      // Skills
+      if (data.skills?.length) {
+        addText("SKILLS", 14, true)
+        addText(data.skills.join(", "))
+        y += 5
+      }
+      
+      // Save PDF
+      doc.save(`${resume.fileName.replace(".pdf", "")}-structured.pdf`)
+      
+      toast({
+        title: "Exported",
+        description: "PDF downloaded successfully",
+      })
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "Failed to generate PDF",
+        variant: "destructive",
+      })
+    }
   }
 
   const handleDelete = async () => {
@@ -174,7 +261,7 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="mt-2 text-muted-foreground">View and manage your uploaded PDFs</p>
           </div>
-          <Button onClick={() => (window.location.href = "/upload")} className="bg-black text-white hover:bg-black/90">Upload PDF</Button>
+          <Button onClick={() => router.push("/upload")} className="bg-black text-white hover:bg-black/90">Upload PDF</Button>
         </div>
 
         {resumes.length === 0 ? (
@@ -183,7 +270,7 @@ export default function DashboardPage() {
               <FileText className="mb-4 h-12 w-12 text-muted-foreground" />
               <p className="mb-2 font-medium">No resumes yet</p>
               <p className="mb-4 text-sm text-muted-foreground">Upload your first PDF to get started</p>
-              <Button onClick={() => (window.location.href = "/upload")} className="bg-black text-white hover:bg-black/90">Upload PDF</Button>
+              <Button onClick={() => router.push("/upload")} className="bg-black text-white hover:bg-black/90">Upload PDF</Button>
             </CardContent>
           </Card>
         ) : (
@@ -265,37 +352,52 @@ export default function DashboardPage() {
 
       {/* View Resume Dialog */}
       <Dialog open={!!selectedResume} onOpenChange={() => setSelectedResume(null)}>
-        <DialogContent className="max-h-[80vh] max-w-3xl overflow-y-auto">
+        <DialogContent className="max-h-[85vh] max-w-5xl overflow-y-auto bg-black text-white border-gray-800">
           <DialogHeader>
-            <DialogTitle>Document Data</DialogTitle>
-            <DialogDescription>Extracted data from {selectedResume?.fileName}</DialogDescription>
+            <DialogTitle className="text-white">Document Data</DialogTitle>
+            <DialogDescription className="text-gray-400">Extracted data from {selectedResume?.fileName}</DialogDescription>
           </DialogHeader>
 
           {selectedResume && (
             <div className="space-y-6">
               {/* Pretty Card Preview */}
-              <div className="flex items-start gap-4 rounded-lg border border-border bg-card p-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
+              <div className="flex items-start gap-4 rounded-lg border border-gray-800 bg-gray-900 p-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-dashed border-gray-700 bg-gray-800">
+                  <FileText className="h-8 w-8 text-gray-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold">
+                  <p className="font-semibold text-white">
                     {selectedResume.extractedData?.profile?.name} {selectedResume.extractedData?.profile?.surname}
                   </p>
-                  <p className="text-sm text-muted-foreground">{selectedResume.extractedData?.profile?.headline}</p>
-                  <p className="text-xs text-muted-foreground">{selectedResume.extractedData?.profile?.email}</p>
+                  <p className="text-sm text-gray-400">{selectedResume.extractedData?.profile?.headline}</p>
+                  <p className="text-xs text-gray-500">{selectedResume.extractedData?.profile?.email}</p>
                 </div>
               </div>
 
-              {/* JSON View */}
+              {/* Structured Data Section with Actions */}
               <div>
-                <div className="mb-2 flex items-center justify-between">
-                  <h4 className="font-semibold">Structured Data</h4>
-                  <Button variant="outline" size="sm" onClick={() => handleExportJSON(selectedResume)}>
-                    Export JSON
-                  </Button>
+                <div className="space-y-3 mb-3">
+                  <div className="flex flex-wrap justify-start gap-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleExportJSON(selectedResume)} 
+                      className="bg-gray-900 text-white border-gray-700 hover:bg-gray-800 flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" /> Export JSON
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleExportPDF(selectedResume)} 
+                      className="bg-gray-900 text-white border-gray-700 hover:bg-gray-800 flex items-center gap-2"
+                    >
+                      <FileText className="h-4 w-4" /> Download PDF
+                    </Button>
+                  </div>
+                  <h4 className="font-semibold text-white">Structured Data</h4>
                 </div>
-                <pre className="overflow-x-auto rounded-lg border border-border bg-muted p-4 text-xs">
+                <pre className="overflow-x-auto rounded-lg border border-gray-800 bg-gray-900 p-4 text-xs text-gray-300">
                   {JSON.stringify(selectedResume.extractedData, null, 2)}
                 </pre>
               </div>
@@ -306,21 +408,36 @@ export default function DashboardPage() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteResumeId} onOpenChange={() => setDeleteResumeId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the resume and all associated data.
+        <AlertDialogContent className="max-w-md rounded-xl border border-gray-800 bg-black text-white shadow-2xl">
+          <AlertDialogHeader className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-400 ring-1 ring-red-500/30">
+                <Trash2 className="h-5 w-5" />
+              </div>
+              <AlertDialogTitle className="text-white">Delete this resume?</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-gray-400">
+              {`“${resumes?.find(r => r.id === deleteResumeId)?.fileName || "this file"}” will be permanently removed. This action cannot be undone.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="sm:justify-between">
+            <AlertDialogCancel disabled={isDeleting} className="border-gray-800 bg-transparent text-gray-300 hover:bg-gray-900">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 text-white hover:bg-red-600/90 focus:ring-2 focus:ring-red-600"
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Deleting...
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" /> Delete
+                </span>
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

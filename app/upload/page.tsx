@@ -91,7 +91,7 @@ export default function UploadPage() {
 
       // Poll for extraction completion
       let attempts = 0
-      const maxAttempts = 30 // ~30 seconds
+      const maxAttempts = 120 // ~120 seconds
 
       const checkStatus = async () => {
         const statusResponse = await fetch(`/api/resume/${data.resumeId}`)

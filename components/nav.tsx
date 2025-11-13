@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { FileText, Moon, Sun, CreditCard, Coins, Zap } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -16,9 +16,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { useEffect, useState } from "react"
 import { useToast } from "@/hooks/use-toast"
+import { cn } from "@/lib/utils"
 
 export function Nav() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { theme, setTheme } = useTheme()
   const { data: session, status } = useSession()
   const { toast } = useToast()
@@ -48,6 +50,28 @@ export function Nav() {
     }
     load()
   }, [status])
+
+  // Refresh user data after successful subscription
+  useEffect(() => {
+    if (searchParams.get('success') === 'true' && status === "authenticated") {
+      const refresh = async () => {
+        try {
+          const res = await fetch("/api/user/me")
+          if (res.ok) {
+            const data = await res.json()
+            setUserData({
+              credits: data.credits ?? 0,
+              planType: data.planType ?? "FREE",
+              stripeCustomerId: data.stripeCustomerId ?? null,
+            })
+          }
+        } catch (e) {
+          console.error("Failed to refresh user profile:", e)
+        }
+      }
+      refresh()
+    }
+  }, [searchParams, status])
 
   const handleSubscribe = async (plan: "BASIC" | "PRO") => {
     setSubscribing(plan)
@@ -93,6 +117,18 @@ export function Nav() {
     }
   }
 
+  const isDark = theme === "dark"
+  const menuContentClasses = cn(
+    "w-72 border shadow-xl rounded-xl p-0 overflow-hidden",
+    isDark ? "bg-white text-black border-black/10" : "bg-black text-white border-white/10"
+  )
+  const sepClass = isDark ? "my-2 border-black/15" : "my-2 border-white/20"
+  const itemClasses = cn(
+    "py-2.5 px-6",
+    isDark ? "text-black focus:bg-black/10 focus:text-black" : "text-white focus:bg-white/10 focus:text-white"
+  )
+  const subTextClass = isDark ? "text-black/70" : "text-white/70"
+
   return (
     <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center justify-between px-4">
@@ -127,27 +163,29 @@ export function Nav() {
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72">
-                  <div className="px-2 py-2 text-sm">
+                {/* Dark/Light card for profile menu depending on theme */}
+                <DropdownMenuContent align="end" className={menuContentClasses}>
+                  <div className="px-6 py-4 text-sm">
                     <div className="truncate font-medium">{session.user.email}</div>
-                    <div className="mt-1 flex items-center justify-between text-muted-foreground">
+                    <div className={cn("mt-3 flex items-center justify-between", subTextClass)}>
                       <span className="flex items-center gap-1">
                         <Coins className="h-4 w-4" /> Credits
                       </span>
                       <span className="font-semibold">{userData?.credits?.toLocaleString?.() ?? "—"}</span>
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
+                    <div className={cn("mt-2 text-xs", subTextClass)}>
                       Plan: <span className="uppercase font-medium">{userData?.planType ?? "FREE"}</span>
                     </div>
                   </div>
-                  <DropdownMenuSeparator />
+                  {/* Separator */}
+                  <hr className={sepClass} />
 
                   {userData?.stripeCustomerId ? (
-                    <DropdownMenuItem onClick={handleManageBilling} disabled={subscribing !== null}>
+                    <DropdownMenuItem onClick={handleManageBilling} disabled={subscribing !== null} className={itemClasses}>
                       <CreditCard className="mr-2 h-4 w-4" /> Manage Billing
                     </DropdownMenuItem>
                   ) : userData?.planType === "PRO" ? (
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className={itemClasses}>
                       <Link href="/settings" className="flex items-center">
                         <CreditCard className="mr-2 h-4 w-4" /> Manage Subscription
                       </Link>
@@ -158,6 +196,7 @@ export function Nav() {
                         <DropdownMenuItem
                           onClick={() => handleSubscribe("PRO")}
                           disabled={subscribing !== null}
+                          className={itemClasses}
                         >
                           <Zap className="mr-2 h-4 w-4" /> {userData?.planType === "BASIC" ? "Upgrade to Pro" : "Subscribe to Pro"}
                         </DropdownMenuItem>
@@ -166,6 +205,7 @@ export function Nav() {
                         <DropdownMenuItem
                           onClick={() => handleSubscribe("BASIC")}
                           disabled={subscribing !== null}
+                          className={itemClasses}
                         >
                           <Zap className="mr-2 h-4 w-4" /> Subscribe to Basic
                         </DropdownMenuItem>
@@ -173,8 +213,9 @@ export function Nav() {
                     </>
                   )}
 
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+                  {/* Separator */}
+                  <hr className={sepClass} />
+                  <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className={itemClasses}>
                     {theme === "dark" ? (
                       <>
                         <Sun className="mr-2 h-4 w-4" /> Light mode
@@ -185,8 +226,11 @@ export function Nav() {
                       </>
                     )}
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })}>Sign out</DropdownMenuItem>
+                  {/* Separator */}
+                  <hr className={sepClass} />
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/" })} className={itemClasses}>
+                    Sign out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
